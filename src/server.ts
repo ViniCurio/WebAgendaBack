@@ -5,8 +5,8 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import { routes } from "./routes.js";
 
-const app = fastify().withTypeProvider<ZodTypeProvider>();
 
+const app = fastify().withTypeProvider<ZodTypeProvider>();
 
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
@@ -22,13 +22,25 @@ app.register(fastifySwagger, {
 })
 
 
-
 app.register(fastifySwaggerUi, {
     routePrefix: "/docs",       
 })
 
-app.register(routes);
-
-app.listen({ port: 3030 }).then(() => {
-    console.log("Server is running on port 3030");
+app.setErrorHandler((error, request, reply) =>{
+    reply.code(400).send({ message: Error})
 })
+
+const start = async () => {
+
+    await app.register(fastifyCors);
+    await app.register(routes);
+
+    try {
+        await app.listen({ port: 3030 }).then(() => {
+        console.log("Server is running on port 3030");
+    })} catch (err) {
+        process.exit(1);  
+    }
+};
+
+start();

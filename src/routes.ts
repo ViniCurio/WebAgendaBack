@@ -1,33 +1,57 @@
-import { fastify, type FastifyInstance } from "fastify";
 import { z } from "zod";
 import type { FastifyTypedInstance } from "./types.js";
-import { randomUUID } from "node:crypto";
-import { Agendamentos } from "./agendamentos.js";
-
-const agendamento: Agendamentos[] = [];
+import { CreateAgendaController } from "./controller/CreateAgendaController.js";
+import { ListAgendaController } from "./controller/ListAgendaController.js";
+import type { FastifyReply, FastifyRequest } from "fastify";
+import { DeleteAgendaController } from "./controller/DeleteAgendaController.js";
 
 
 export async function routes(app: FastifyTypedInstance) {
-    
-    app.get("/agendamentos", {
+
+    app.get("/", {
         schema: {
-            tags: ["agendamento"],
-            description: "lista agendamentos",
+            tags: ["Home"],
+            description: "Rota inicial da API",
+        }
+    }, () => {
+        return "MEU FRONTEND VAI SER AQUI";
+    });
+    
+    app.get("/agenda", {
+        schema: {
+            tags: ["Agenda"],
+            description: "lista agendados",
             response: {
                 200: z.array(z.object({
                     nome: z.string(),
                     data: z.string(),
                     hora: z.string(),
-                })).describe("Lista de agendamentos"),
+                })).describe("Lista de agendados"),
             }
         }
-    }, () => {
-        return agendamento;
+    }, async (request: FastifyRequest, reply: FastifyReply) => {
+        return new ListAgendaController().handle(request, reply);
+    });
+
+        app.get("/agenda", {
+        schema: {
+            tags: ["Deletar"],
+            description: "delete agendamento",
+            query: z.object({
+                id: z.string(),
+            }),
+            response: {
+                201: z.null().describe("Agendamento deletado com sucesso"),
+
+            },
+        }
+    }, async (request: FastifyRequest, reply: FastifyReply) => {
+        return new DeleteAgendaController().handle(request, reply);
     });
 
     app.post("/agendamento", {
         schema: {
-            tags: ["agendamento"],
+            tags: ["Agendamento"],
             description: "Novo agendamento",
             body: z.object({
                 nome: z.string(),
@@ -39,12 +63,8 @@ export async function routes(app: FastifyTypedInstance) {
 
             },
         }
-    },  async (req, rep) => {
-        const { nome, data, hora } = req.body;
-
-        const novoAgendamento = new Agendamentos(nome, data, hora);
-        agendamento.push(novoAgendamento);
-        return rep.status(201);
+    },  async (request, reply) => {
+            return new CreateAgendaController().handle(request, reply);
     });
 
 }
