@@ -17,7 +17,7 @@ datasource db {
 model Agends {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   nome         String
-  data         String
+  data         DateTime
   hora         String
   observacoes  String?
   createdAt    DateTime @default(now())

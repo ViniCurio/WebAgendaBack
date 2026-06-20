@@ -7,15 +7,6 @@ import { DeleteAgendaController } from "./controller/DeleteAgendaController.js";
 
 
 export async function routes(app: FastifyTypedInstance) {
-
-    app.get("/", {
-        schema: {
-            tags: ["Home"],
-            description: "Rota inicial da API",
-        }
-    }, () => {
-        return "MEU FRONTEND VAI SER AQUI";
-    });
     
     app.get("/agenda", {
         schema: {
@@ -23,6 +14,7 @@ export async function routes(app: FastifyTypedInstance) {
             description: "lista agendados",
             response: {
                 200: z.array(z.object({
+                    id: z.string(),
                     nome: z.string(),
                     data: z.string(),
                     hora: z.string(),

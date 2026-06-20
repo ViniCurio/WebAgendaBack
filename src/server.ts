@@ -9,6 +9,7 @@ import "dotenv/config";
 
 const app = fastify().withTypeProvider<ZodTypeProvider>();
 
+
 app.setValidatorCompiler(validatorCompiler);
 app.setSerializerCompiler(serializerCompiler);
 
@@ -27,13 +28,16 @@ app.register(fastifySwaggerUi, {
     routePrefix: "/docs",       
 })
 
-app.setErrorHandler((error, request, reply) =>{
-    reply.code(400).send({ message: error.message })
-})
 
 const start = async () => {
 
-    await app.register(fastifyCors);
+    await app.register(fastifyCors, {
+        origin: true,
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        preflight: true,
+    });
+    
     await app.register(routes);
 
     try {
